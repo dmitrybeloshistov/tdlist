@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  position: relative;
+  margin: 0;
+  padding-bottom: 6rem;
+  min-height: 100%;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background-color: #f1f1f1;
+  z-index: 1;
+}
+
+.overlay {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2;
+    cursor: pointer;
+}
+
+.demo {
+  margin: 0 auto;
+  padding-top: 64px;
+  /*max-width: 640px;*/
+  width: 94%;
+}
+
+.demo h1 {
+  margin-top: 0;
+}
+
+.footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1rem;
+  background-color:mediumpurple;
+  text-align: center;
+}
+
+.nav {
+    left:0;
+    position: absolute;
+    float: left;
+    display:block;
+    margin: 0;
+    padding: 10px; 
+    width: 300px;
+}
+
+
+.nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 295px;
+    background-color: #f1f1f1;
+}
+
+.nav li a {
+    display: block;
+    color: #000;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+
+.nav li a:hover {
+    background-color: #555;
+    color: white;
+}
+
+
+.header {
+  position: absolute;
+  right: 0;
+  top: 0;
+  left: 0;
+  height:50px;
+  padding: 1rem;
+  background-color:mediumpurple;
+  text-align: center;
+}
+
+.content {
+    left:310px;
+    position: absolute;
+    float: left;
+    display:block;
+    margin: 0;
+    padding: 1em;
+}
+
+.content ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #f1f1f1;
+}
+
+.content li a {
+    display: block;
+    color: #000;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+.content li a:hover {
+    background-color: #555;
+    color: white;
+}
+
+.centered {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+</style>
+
+
+<script type="text/javascript">
+
+    function getElementVisible(id) {
+        obj=document.getElementById(id);
+        if (obj != null)
+        {
+           return (obj.style.display != "none");  
+        }
+        else 
+        {
+            return false;
+        }  
+    }
+
+    function showhide_divbyid(id) {
+        if (document.getElementById) {
+            obj = document.getElementById(id);
+            if (obj != null) {
+                if (obj.style.display == "none") { obj.style.display = ""; }
+                else { obj.style.display = "none"; }
+            }
+        }
+    }
+
+    function showhideblock_byid(id)
+    {
+        if (document.getElementById) {
+            obj = document.getElementById(id);
+            if (obj != null) {
+                if (obj.style.display == "none") { obj.style.display = "block"; }
+                else { obj.style.display = "none"; }
+            }
+        }
+    }
+
+    function showerror(errmsg) {
+        showhideblock_byid('showErrorDiv');
+        el = document.getElementById('errorInfo');
+        if (el != null) {
+            el.innerHTML = errmsg;
+        }
+    }
+
+
+    function hide_div(id) {
+        obj = document.getElementById(id);
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+    }
+
+    function show_div(id) {
+        obj = document.getElementById(id);
+        if (obj != null) {
+            obj.style.display = "";
+        }
+
+    }
+
+    function setElementText(eID, aText) {
+        obj = document.getElementById(eID);
+        if (obj != null) obj.innerText = aText;
+    }
+
+    function setElementValue(eID, aText){
+        obj= document.getElementById(eID);
+        if (obj!=null) obj.value = aText;
+    }
+
+    function setSelectByValue(eID, val) { //Loop through sequentially//
+        var ele = document.getElementById(eID);
+        if (ele != null) {
+            for (var ii = 0; ii < ele.length; ii++)
+                if (ele.options[ii].value == val) { //Found!
+                    ele.options[ii].selected = true;
+                    return true;
+                }
+            return false;
+        }
+        else return false;
+    }
+
+
+    function setcontrolenabled(AName,AEnable)
+    {
+        el = document.getElementById(AName);
+        if (el != null) {
+            if (AEnable == true) {
+                el.removeAttribute("disabled");
+                el.style.backgroundColor = "";
+            }
+            else {
+                el.setAttribute("disabled", "disabled");
+                el.style.backgroundColor = "silver";
+            }
+        }
+
+    }
+
+    function getSelectValue(eID) {
+        var ele = document.getElementById(eID);
+        if (ele != null) {
+            for (var ii = 0; ii < ele.length; ii++)
+                if (ele.options[ii].selected == true)
+                    return ele.options[ii].value;
+        }
+        else return "0";
+    }
+
+
+    //------ cookies -----
+    function setCookie(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+      var expires = "expires="+d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+      var name = cname + "=";
+      var ca = document.cookie.split(';');
+      for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+           }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+      }
+      return "";
+    }
+
+    // get/set data API
+    function GetFolderListData(UserID)
+    {
+         var xmlhttp = new XMLHttpRequest();
+         xmlhttp.onreadystatechange = function() {
+               if (this.readyState == 4 && this.status == 200) {
+                             aHTML=this.responseText;
+                             el=document.getElementById("FolderNames");
+                             if (el != null)
+                             {
+                                el.innerHTML=aHTML;
+                             }
+                          }
+                   };
+         xmlhttp.open("GET", "http://tdl/folderlist.php?uid="+UserID, true);
+         xmlhttp.send();
+    }
+
+
+
+    function GetFolderItemsListData(FolderId)
+    {
+        el=document.getElementById("FolderItems");
+        if (el!=null)
+        {
+              el.innerHTML="";   // always clear previos items
+        }
+         var xmlhttp = new XMLHttpRequest();
+         xmlhttp.onreadystatechange = function() {
+               if (this.readyState == 4 && this.status == 200) {
+                             aHTML=this.responseText;
+                             el=document.getElementById("FolderItems");
+                             if (el != null)
+                             {
+                                el.innerHTML=aHTML;
+                                // force redraw for FolderItems
+                                var disp = el.style.display;
+                                el.style.display = 'none';
+                                var trick = el.offsetHeight;
+                                el.style.display = disp;
+                             }
+                          }
+                   };
+         xmlhttp.open("GET", "http://tdl/folderitems.php?fid="+FolderId, true);
+         xmlhttp.send();
+    }
+
+
+    var CurrentUserId=-1;
+    var CurrentUserName="";
+    var CurrentFolderId=-1;
+
+    function GetUserData(UserName,UserPass)
+    {
+        if (UserName!="" && UserPass !="")
+        {
+        var xmlhttp=new XMLHttpRequest();
+        xmlhttp.onreadystatechange=function () {
+            if (this.readyState ==4 && this.status == 200) {
+                var userInfo=JSON.parse(this.responseText);       // <= x.UID, x.UserName
+                CurrentUserId=userInfo.UID;
+                CurrentUserName=userInfo.UserName;                            
+            }
+        };
+        xmlhttp.open("GET","http://tdl/userlogin.php?u="+encodeURIComponent(UserName)+"&p="+encodeURIComponent(UserPass),true);  
+        xmlhttp.send();
+        }
+        else {
+            CurrentUserId=-1;
+            CurrentUserName="";
+        }
+    }
+
+    var _currentdate = new Date(); 
+    var CurrentDate = "Current date: " +_currentdate.getDate() + "." + (_currentdate.getMonth()+1)  + "." + _currentdate.getFullYear();
+    
+
+    function CreateUser(UserName,UserPass)
+    {
+        if (UserName!="" && UserPass!="")
+        {
+        var xmlhttp=new XMLHttpRequest();
+        xmlhttp.onreadystatechange=function () {
+            if (this.readyState ==4 && this.status == 200) {
+                var userInfo=JSON.parse(this.responseText);       // <= x.UID, x.UserName
+                CurrentUserId=userInfo.UID;
+                CurrentUserName=userInfo.UserName; 
+                setCookie("LoginUserName",UserName,365);
+                setCookie("LoginUserPass",UserPass,365);                           
+            }
+        };
+        xmlhttp.open("GET","http://tdl/usercreate.php?u="+encodeURIComponent(UserName)+"&p="+encodeURIComponent(UserPass),true);  // not ASYNC request
+        xmlhttp.send();           
+        }
+    }
+
+    function GetUserInfo()
+    {
+       var UserName=getCookie("LoginUserName");
+       var UserPass=getCookie("LoginUserPass");
+       GetUserData(UserName,UserPass);
+       var s=getCookie("CurrentFolderId");
+       if (s!="") 
+           CurrentFolderId=Number(s);
+    }
+
+    function UpdateLoggedUserInfo()
+    {
+        var s="";
+        if (CurrentUserName!="") s="Logged as: "+CurrentUserName;
+        else {
+               s="";
+               CurrentFolderId=-1;
+               CurrentUserId=-1;
+               var el=document.getElementById("curFolder");
+               if (el!=null) {
+                                el.innerHTML="<b>TODO List</b>";   
+                             }   
+             }  
+        setElementText("loggeduser",s);
+
+        GetFolderListData(CurrentUserId);
+        GetFolderItemsListData(CurrentFolderId);
+    }
+
+    function DoUserLogin()
+    {
+       var UserName="";
+       var UserPass =""; 
+       var el=document.getElementById("UserLogin");
+       if (el!=null)
+          UserName=el.value;
+       el=document.getElementById("UserPass");
+       if (el!=null)
+          UserPass=el.value;
+       if (UserName!="" && UserPass!="")
+          {
+              setCookie("LoginUserName",UserName,365);
+              setCookie("LoginUserPass",UserPass,365);
+              GetUserData(UserName,UserPass);
+              setTimeout(UpdateLoggedUserInfo,1000);  // update logged user info
+          }
+          
+    }
+
+    function DoUserCreate()
+    {
+       var UserName="";
+       var UserPass =""; 
+       var el=document.getElementById("UserLogin");
+       if (el!=null)
+          UserName=el.value;
+       el=document.getElementById("UserPass");
+       if (el!=null)
+          UserPass=el.value;
+       if (UserName!="" && UserPass!="")
+           {
+               CreateUser(UserName,UserPass);
+               setTimeout(UpdateLoggedUserInfo,1000);
+           }         
+    }
+
+    function AutoLogin()
+    {
+        var UserName=getCookie("LoginUserName");
+        var UserPass=getCookie("LoginUserPass");
+        if (UserName!="" && UserPass!="")
+          {
+              GetUserData(UserName,UserPass);
+              setTimeout(UpdateLoggedUserInfo,1000);
+              // UpdateLoggedUserInfo();  // update logged user info
+          }      
+    }
+
+
+    function DBCreateFolder(UserId,FolderName)
+    {
+        if (UserId!=-1 && FolderName!="")
+        {
+        var xmlhttp=new XMLHttpRequest();
+        xmlhttp.onreadystatechange=function () {
+            if (this.readyState ==4 && this.status == 200) {
+                var x=JSON.parse(this.responseText);       // <= x.status  0 == no error
+                if (x.status == 0)                                                   
+                   {
+                      GetFolderListData(UserId);
+                   }
+            }
+        };
+        xmlhttp.open("GET","http://tdl/foldercreate.php?u="+UserId+"&p="+encodeURIComponent(FolderName),true);  
+        xmlhttp.send();           
+        }
+    }
+
+    function DBDeleteFolder(FolderId)
+    {
+        if (confirm("Delete selected folder?"))
+        {
+        var xmlhttp=new XMLHttpRequest();
+        xmlhttp.onreadystatechange=function () {
+            if (this.readyState ==4 && this.status == 200) {
+                var x=JSON.parse(this.responseText);       // <= x.status  0 == no error
+                if (x.status == 0)                                                   
+                   {
+                      GetFolderListData(CurrentUserId);
+                   }
+            }
+        };
+        xmlhttp.open("GET","http://tdl/folderdelete.php?u="+FolderId,true);  
+        xmlhttp.send();
+        }
+    }
+
+    function DoAddNewFolder()
+    {
+        var FolderName="";
+        if (getElementVisible("FolderName"))  // button pressed and folder name are not empty
+           {
+               var el=document.getElementById("FolderName");
+               FolderName=el.value; 
+               if (FolderName != "")
+                 {
+                    DBCreateFolder(CurrentUserId,FolderName);
+                 }         
+           }       
+        showhide_divbyid("FolderName");   
+    }
+
+    function DoSetCurrentFolder(FolderId,FolderName)
+    {
+       CurrentFolderId=FolderId; 
+       var el=document.getElementById("curFolder");
+       if (el!=null) 
+       {
+           if (FolderName!="")
+           {
+               el.innerHTML="<b>TODO List</b>"+":<span style=\"font-size:small\">"+FolderName+"</span>";
+           }
+           else 
+             {
+               el.innerHTML="<b>TODO List</b>";   
+             } 
+       }  
+       setCookie("CurrentFolderId",CurrentFolderId,365);   
+       GetFolderItemsListData(CurrentFolderId);  
+    }
+
+    function DBDeleteItem(ItemId)
+    {
+        if (confirm("Delete item?"))
+        {
+        var xmlhttp=new XMLHttpRequest();
+        xmlhttp.onreadystatechange=function () {
+            if (this.readyState ==4 && this.status == 200) {
+                var x=JSON.parse(this.responseText);       // <= x.status  0 == no error
+                if (x.status == 0)                                                   
+                   {
+                      GetFolderItemsListData(CurrentFolderId);
+                   }
+            }
+        };
+        xmlhttp.open("GET","http://tdl/itemdelete.php?u="+ItemId,true);  
+        xmlhttp.send();
+        }
+    }
+
+    function DBMarkItem(ItemId)
+    {
+        var cb_name="cb_"+ItemId;
+        var mark=0;
+        el=document.getElementById(cb_name);
+        if (el!=null)
+           {
+               if (el.checked) mark=1; 
+               var xmlhttp=new XMLHttpRequest();
+               xmlhttp.onreadystatechange=function () {
+               if (this.readyState ==4 && this.status == 200) {
+                     var x=JSON.parse(this.responseText);       // <= x.status  0 == no error
+                     if (x.status == 0)                                                   
+                     {
+                        GetFolderItemsListData(CurrentFolderId);
+                     }
+                  }
+              };
+            xmlhttp.open("GET","http://tdl/itemmark.php?u="+ItemId+"&m="+mark,true);  
+            xmlhttp.send();          
+           }
+    }
+
+    function DBCreateItem(FolderId)
+    {
+        var data=new FormData();
+        data.append("u",FolderId);
+        var s="";
+        el=document.getElementById("ItemName");
+        if (el!=null)
+           {           
+               s=el.value;
+               data.append("n",s);
+           }
+        s="";
+        el=document.getElementById("ItemDesc");
+        if (el!=null)
+           {           
+               s=el.value;
+               data.append("d",s);
+           }
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange=function () {
+               if (this.readyState ==4 && this.status == 200) {
+                     var x=JSON.parse(this.responseText);       // <= x.status  0 == no error
+                     if (x.status == 0)                                                   
+                     {
+                        GetFolderItemsListData(CurrentFolderId);
+                     }
+                  }
+              };
+        xmlhttp.open("POST", "http://tdl/itemcreate.php");
+        xmlhttp.send(data);
+    }
+
+    function DBMoveItemToFolder(ItemId,FolderId)
+    {
+        var xmlhttp=new XMLHttpRequest();
+        xmlhttp.onreadystatechange=function () {
+               if (this.readyState ==4 && this.status == 200) {
+                     var x=JSON.parse(this.responseText);       // <= x.status  0 == no error
+                     if (x.status == 0)                                                   
+                     {
+                        GetFolderItemsListData(CurrentFolderId);
+                     }
+                  }
+              };
+        xmlhttp.open("GET","http://tdl/itemmove.php?u="+ItemId+"&f="+FolderId,true);  
+        xmlhttp.send();                  
+    }
+
+    // drag`n`drop
+    function dragstart_handler(ev) {
+       ev.dataTransfer.setData("text/plain", ev.currentTarget.id); //  ev.target.id
+       ev.dropEffect = "move";
+    }
+
+    function dragover_handler(ev) {
+        ev.preventDefault();
+        ev.dataTransfer.dropEffect = "move"
+    }
+
+    function drop_handler(ev) {
+        ev.preventDefault();
+        var data = ev.dataTransfer.getData("text/plain");
+        var ItemId=data.substring(3);                     // it_XXXX -> XXXX
+        var FolderId=ev.currentTarget.id.substring(3);    // fl_XXXX -> XXXX
+        // alert(ItemId+" "+FolderId);
+        DBMoveItemToFolder(ItemId,FolderId); 
+    }
+ 
+  </script>
+
+</head>
+<body>
+
+<div id="selectDateDiv" style="position:absolute; top:50px; left:5px; height:65px; width:210px; display:none; 
+                               border:1 #000 solid; padding:10px; z-index:2; background-color:darkslategray;
+                               border-radius: 15px 15px 15px 15px;">
+    <span style="position:absolute; float:right; right:5px; color:white; cursor:pointer;" onclick="showhide_divbyid('selectDateDiv');">&times;</span>                            
+    <label for="FilterDate"><span style="color:white; font-size:smallest;">ToDo on date:</span></label>                           
+    <input type="date" id="FilterDate" name="FilterDate">
+    <input type="button" id="SetDateFilterButton" value=">">
+</div>
+
+<div id="LoginDialog" style="position:absolute; top:50px; float:right; right:5px; height:135px; width:200px; display:none; 
+                             border:1 #000 solid; padding:10px; z-index:2; background-color:darkslategray;
+                             border-radius: 15px 15px 15px 15px;">
+    <span style="position:absolute; float:right; right:5px; color:white; cursor:pointer;" onclick="showhide_divbyid('LoginDialog');">&times;</span>                          
+    <label for="UserLogin"><span style="color:white; font-size:smallest;">Login</span></label>                           
+    <input type="text" id="UserLogin" name="UserLogin">
+    <label for="UserPass"><span style="color:white; font-size:smallest;">Password</span></label>
+    <input type="password" id="UserPass" name="UserPass">
+    <br>
+    <hr>
+    <div style="display:flex; justify-content: center;">
+          <input type="button" id="LoginUserBtn" value="Login" onclick="DoUserLogin(); showhide_divbyid('LoginDialog');">
+          <input type="button" id="CreateUserBtn" value="Create" onclick="DoUserCreate(); showhide_divbyid('LoginDialog');">
+    </div>
+</div>
+
+
+<div id="showErrorDiv" class="overlay">
+
+<div id="showErrorDivInternal" class="centered" style="height:150px; width:300px; 
+        border:1 #000 solid; z-index:2; background-color:darkslategray; border-radius: 5px 5px 5px 5px;">
+    <div style="position:absolute; height:20px; width:100%; top:0; background-color:maroon; text-align:center; color:white; border-radius: 5px 5px 0px 0px;">
+Error
+    </div>
+    <p id="errorInfo" style="color:white; padding:10px;">
+    </p>
+    <div style="bottom:0px; height:30px; width:100%; position:absolute; text-align:center; padding:3px;"> 
+      <input type="button" value="OK" onclick="showhideblock_byid('showErrorDiv'); ">
+    </div>
+</div>
+
+</div>
+
+<div id="CreateItemDiv" class="overlay">
+
+<div id="CreateItemDivInternal" class="centered" style="height:300px; width:400px; 
+        border:1 #000 solid; z-index:2; background-color:darkslategray; border-radius: 5px 5px 5px 5px;">
+    <div style="position:absolute; height:20px; width:100%; top:0; background-color:darkviolet; text-align:center; color:white; border-radius: 5px 5px 0px 0px;">
+New TODO Item
+    </div>
+    <div style="position:absolute; color:white; font-size:smallest; left:10px; top:30px;">Caption</div>                           
+    <input type="text" id="ItemName" name="ItemName" style="position:absolute; left:10px; top:50px; width:380px">
+    <div style="position:absolute; color:white; font-size:smallest; left:10px; top:80px;">Description</div>
+    <textarea NAME="ItemDesc" ID="ItemDesc" style="height:150px; left:10px; width:380px; position:absolute; top:100px;"></textarea>  
+      <div style="bottom:0px; height:30px; width:100%; position:absolute; text-align:center; padding:3px;"> 
+         <input type="button" value="OK" onclick="DBCreateItem(CurrentFolderId); showhideblock_byid('CreateItemDiv');">
+         <input type="button" value="Cancel" onclick="showhideblock_byid('CreateItemDiv');">
+    </div>
+</div>
+    
+</div>
+
+<div class="demo">
+
+<div class="header">
+   <div style="position:absolute; float:left; top:0; padding:0; left:0">
+       <img src="todo48.png" style="border:0; cursor:pointer;">
+       <!-- onclick="showerror('This is information about error....'); showhideblock_byid('back');"> -->  
+       <!-- showhide_divbyid('selectDateDiv'); -->
+   </div>   
+      <span id="curDate" style="position:absolute; color:white; text-align:middle; font-size:small; float:left; left:50px;">
+           Current date 
+     </span>    
+      
+     <span id="curFolder" style="position:absolute; left:300px; font-size:x-large; color:white; top:10px;"><b>TODO List</b></span>
+ 
+     <span id="loggeduser" style="font-size:small; text-align:middle; float:right; padding-right:50px; color:white;">Logged user name</span> 
+   
+   <div style="position:absolute; float:right; top:0; padding:0; right:0">
+       <img src="avatar.jpg" width=48 height=48 style="border:1; border-radius: 50%; cursor:pointer;"
+            onclick="showhide_divbyid('LoginDialog');">      
+   </div>
+</div>
+  
+<div class="nav">
+    <div>
+       <input type="image" src="bmadd.png" style="position:absolute; top:0px; border:0; border-radius:50%; float:left;" onclick="DoAddNewFolder();">
+       <input type="text" id="FolderName" style="display:none; position:absolute; top:5px; left:50px; border-radius: 5px 5px 5px 5px; float:left"> 
+    </div>
+    <br><hr><br>
+   
+  <div style="overflow:auto; height:490px">     
+  <Label for="FolderNames"></label>  
+  <ul id="FolderNames">
+      <!--
+    <li><a href="#"><span onclick="CurrentFolderId=1; alert('CURFOLDER='+CurrentFolderId);">London [1/2]</span>
+                    <span style="float:right; position:relative;" onclick="alert('remove folder?');">&times;</span></a></li>
+       -->             
+  </ul>
+ </div>
+</div>
+
+<div id="content_div" class="content" style="width:1050px;">
+
+    <div>
+       <input type="image" src="bmadd.png" style="position:absolute; top:0px; border:0; border-radius:50%; float:left;" onclick="showhideblock_byid('CreateItemDiv'); showhideblock_byid('back');">            
+  </div>
+    <br><hr><br>
+ 
+ <div style="overflow:auto; height:490px;">     
+  <ul id="FolderItems">
+<!-- one item start -
+<li>          
+<a href="#"><input type="checkbox" checked id="cb_1234" style="float:left; position:absolute; top:5;" onclick="alert('mark as complete?');">&nbsp;&nbsp;&nbsp;&nbsp;
+            <span onclick="showhide_divbyid('content_1234');">London</span><span style="float:right;" onclick="alert('remove it?');">&times;</span></a>       
+</li>
+    <div id="content_1234" style="display:none; font-size:small; border:1px solid black;">
+       This is content for London....  
+    </div>
+    
+  - one item end -->
+  </ul>
+ 
+</div>
+
+
+</div>
+
+<div class="footer">Copyright &copy; 2017</div>
+
+</div>
+
+<script>
+   // authorization and get info from cookies
+   AutoLogin();
+  
+   setElementText("curDate",CurrentDate);
+</script>
+
+</body>
+</html>
